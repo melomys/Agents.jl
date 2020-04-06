@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Wealth distribution · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../social_distancing/">Continuous space social distancing for COVID-19</a></li><li class="is-active"><a class="tocitem" href>Wealth distribution</a><ul class="internal"><li><a class="tocitem" href="#Core-structures,-space-less-1"><span>Core structures, space-less</span></a></li><li><a class="tocitem" href="#Running-the-space-less-model-1"><span>Running the space-less model</span></a></li><li><a class="tocitem" href="#Core-structures,-with-space-1"><span>Core structures, with space</span></a></li><li><a class="tocitem" href="#Running-the-model-with-space-1"><span>Running the model with space</span></a></li></ul></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Wealth distribution</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Wealth distribution</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/wealth_distribution.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Wealth-distribution-model-1"><a class="docs-heading-anchor" href="#Wealth-distribution-model-1">Wealth distribution model</a><a class="docs-heading-anchor-permalink" href="#Wealth-distribution-model-1" title="Permalink"></a></h1><p>This model is a simple agent-based economy that is modelled according to the work of <a href="https://arxiv.org/abs/cond-mat/0211175">Dragulescu <em>et al.</em></a>. This work introduces statistical mechanics concepts to study wealth distributions. For this reason what we show here is also referred to as &quot;Boltzmann wealth distribution&quot; model.</p><p>This model has a version with and without space. The rules of the space-less game are quite simple:</p><ol><li>There is a pre-determined number of agents.</li><li>All agents start with one unit of wealth.</li><li>At every step an agent gives 1 unit of wealth (if they have it) to some other agent.</li></ol><p>Even though these are some very simple rules, they can still create the basic properties of wealth distributions, e.g. power-laws distributions.</p><h2 id="Core-structures,-space-less-1"><a class="docs-heading-anchor" href="#Core-structures,-space-less-1">Core structures, space-less</a><a class="docs-heading-anchor-permalink" href="#Core-structures,-space-less-1" title="Permalink"></a></h2><p>We start by defining the Agent type and initializing the model.</p><pre><code class="language-julia">using Agents
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Wealth distribution · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../social_distancing/">Continuous space social distancing for COVID-19</a></li><li class="is-active"><a class="tocitem" href>Wealth distribution</a><ul class="internal"><li><a class="tocitem" href="#Core-structures,-space-less-1"><span>Core structures, space-less</span></a></li><li><a class="tocitem" href="#Running-the-space-less-model-1"><span>Running the space-less model</span></a></li><li><a class="tocitem" href="#Core-structures,-with-space-1"><span>Core structures, with space</span></a></li><li><a class="tocitem" href="#Running-the-model-with-space-1"><span>Running the model with space</span></a></li></ul></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Wealth distribution</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Wealth distribution</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/wealth_distribution.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Wealth-distribution-model-1"><a class="docs-heading-anchor" href="#Wealth-distribution-model-1">Wealth distribution model</a><a class="docs-heading-anchor-permalink" href="#Wealth-distribution-model-1" title="Permalink"></a></h1><p>This model is a simple agent-based economy that is modelled according to the work of <a href="https://arxiv.org/abs/cond-mat/0211175">Dragulescu <em>et al.</em></a>. This work introduces statistical mechanics concepts to study wealth distributions. What we show here is also referred to as &quot;Boltzmann wealth distribution&quot; model.</p><p>This model has a version with and without space. The rules of the space-less game are quite simple:</p><ol><li>There is a pre-determined number of agents.</li><li>All agents start with one unit of wealth.</li><li>At every step an agent gives 1 unit of wealth (if they have it) to some other agent.</li></ol><p>Even though this rule-set is simple, it can still recreate the basic properties of wealth distributions, e.g. power-laws distributions.</p><h2 id="Core-structures,-space-less-1"><a class="docs-heading-anchor" href="#Core-structures,-space-less-1">Core structures, space-less</a><a class="docs-heading-anchor-permalink" href="#Core-structures,-space-less-1" title="Permalink"></a></h2><p>We start by defining the Agent type and initializing the model.</p><pre><code class="language-julia">using Agents
 mutable struct WealthAgent &lt;: AbstractAgent
     id::Int
     wealth::Int
-end</code></pre><p>Notice that this agent does not have a <code>pos</code> field. That is okay, because there is no space structure to this example. We can also make a very simple <a href="../../tutorial/#Agents.AgentBasedModel"><code>AgentBasedModel</code></a> for our model.</p><pre><code class="language-julia">function wealth_model(;numagents = 100, initwealth = 1)
-    model = ABM(WealthAgent, scheduler=random_activation)
+end</code></pre><p>Notice that this agent does not have a <code>pos</code> field. That is okay, because there is no space structure to this example. We can also make a very simple <a href="../../tutorial/#Agents.AgentBasedModel"><code>AgentBasedModel</code></a> for our model.</p><pre><code class="language-julia">function wealth_model(; numagents = 100, initwealth = 1)
+    model = ABM(WealthAgent, scheduler = random_activation)
     for i in 1:numagents
         add_agent!(model, initwealth)
     end
@@ -21,58 +21,58 @@ model = wealth_model()</code></pre><pre><code class="language-none">AgentBasedMo
 end</code></pre><pre><code class="language-none">agent_step! (generic function with 1 method)</code></pre><p>We use <code>random_agent</code> as a convenient way to just grab a random agent. (this may return the same agent as <code>agent</code>, but we don&#39;t care in the long run)</p><h2 id="Running-the-space-less-model-1"><a class="docs-heading-anchor" href="#Running-the-space-less-model-1">Running the space-less model</a><a class="docs-heading-anchor-permalink" href="#Running-the-space-less-model-1" title="Permalink"></a></h2><p>Let&#39;s do some data collection, running a large model for a lot of time</p><pre><code class="language-julia">N = 5
 M = 2000
 agent_properties = [:wealth]
-model = wealth_model(numagents=M)
-data = step!(model, agent_step!, N, agent_properties)
-data[end-20:end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>id</th><th>wealth</th><th>step</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>21 rows × 3 columns</p><tr><th>1</th><td>1980</td><td>1</td><td>5</td></tr><tr><th>2</th><td>1981</td><td>1</td><td>5</td></tr><tr><th>3</th><td>1982</td><td>2</td><td>5</td></tr><tr><th>4</th><td>1983</td><td>0</td><td>5</td></tr><tr><th>5</th><td>1984</td><td>1</td><td>5</td></tr><tr><th>6</th><td>1985</td><td>0</td><td>5</td></tr><tr><th>7</th><td>1986</td><td>1</td><td>5</td></tr><tr><th>8</th><td>1987</td><td>0</td><td>5</td></tr><tr><th>9</th><td>1988</td><td>0</td><td>5</td></tr><tr><th>10</th><td>1989</td><td>4</td><td>5</td></tr><tr><th>11</th><td>1990</td><td>3</td><td>5</td></tr><tr><th>12</th><td>1991</td><td>0</td><td>5</td></tr><tr><th>13</th><td>1992</td><td>0</td><td>5</td></tr><tr><th>14</th><td>1993</td><td>0</td><td>5</td></tr><tr><th>15</th><td>1994</td><td>0</td><td>5</td></tr><tr><th>16</th><td>1995</td><td>1</td><td>5</td></tr><tr><th>17</th><td>1996</td><td>2</td><td>5</td></tr><tr><th>18</th><td>1997</td><td>6</td><td>5</td></tr><tr><th>19</th><td>1998</td><td>1</td><td>5</td></tr><tr><th>20</th><td>1999</td><td>0</td><td>5</td></tr><tr><th>21</th><td>2000</td><td>2</td><td>5</td></tr></tbody></table><p>What we mostly care about is the distribution of wealth, which we can obtain for example by doing the following query:</p><pre><code class="language-julia">wealths = filter(x -&gt; x.step == N, data)[!, :wealth]</code></pre><pre><code class="language-none">2000-element Array{Int64,1}:
+model = wealth_model(numagents = M)
+data, _ = run!(model, agent_step!, N; agent_properties = agent_properties)
+data[end - 20:end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>step</th><th>id</th><th>wealth</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>21 rows × 3 columns</p><tr><th>1</th><td>4</td><td>1980</td><td>0</td></tr><tr><th>2</th><td>4</td><td>1981</td><td>1</td></tr><tr><th>3</th><td>4</td><td>1982</td><td>3</td></tr><tr><th>4</th><td>4</td><td>1983</td><td>0</td></tr><tr><th>5</th><td>4</td><td>1984</td><td>1</td></tr><tr><th>6</th><td>4</td><td>1985</td><td>0</td></tr><tr><th>7</th><td>4</td><td>1986</td><td>1</td></tr><tr><th>8</th><td>4</td><td>1987</td><td>0</td></tr><tr><th>9</th><td>4</td><td>1988</td><td>0</td></tr><tr><th>10</th><td>4</td><td>1989</td><td>3</td></tr><tr><th>11</th><td>4</td><td>1990</td><td>3</td></tr><tr><th>12</th><td>4</td><td>1991</td><td>0</td></tr><tr><th>13</th><td>4</td><td>1992</td><td>1</td></tr><tr><th>14</th><td>4</td><td>1993</td><td>0</td></tr><tr><th>15</th><td>4</td><td>1994</td><td>1</td></tr><tr><th>16</th><td>4</td><td>1995</td><td>1</td></tr><tr><th>17</th><td>4</td><td>1996</td><td>3</td></tr><tr><th>18</th><td>4</td><td>1997</td><td>6</td></tr><tr><th>19</th><td>4</td><td>1998</td><td>2</td></tr><tr><th>20</th><td>4</td><td>1999</td><td>0</td></tr><tr><th>21</th><td>4</td><td>2000</td><td>3</td></tr></tbody></table><p>What we mostly care about is the distribution of wealth, which we can obtain for example by doing the following query:</p><pre><code class="language-julia">wealths = filter(x -&gt; x.step == N-1, data)[!, :wealth]</code></pre><pre><code class="language-none">2000-element Array{Int64,1}:
  0
- 1
+ 0
  4
- 1
- 3
- 1
- 2
- 3
  0
+ 2
+ 1
  3
+ 2
+ 0
+ 0
  ⋮
- 0
- 0
+ 1
  0
  1
- 2
+ 1
+ 3
  6
- 1
+ 2
  0
- 2</code></pre><p>and then we can make a histogram of the result. With a simple visualization we immediatelly see the power-law distribution:</p><pre><code class="language-julia">using UnicodePlots
+ 3</code></pre><p>and then we can make a histogram of the result. With a simple visualization we immediately see the power-law distribution:</p><pre><code class="language-julia">using UnicodePlots
 UnicodePlots.histogram(wealths)</code></pre><pre><code class="language-none">                ┌                                        ┐ 
-   [ 0.0,  1.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 881   
-   [ 1.0,  2.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 609              
-   [ 2.0,  3.0) ┤▇▇▇▇▇▇▇▇▇▇▇ 280                           
-   [ 3.0,  4.0) ┤▇▇▇▇▇▇ 139                                
-   [ 4.0,  5.0) ┤▇▇ 60                                     
+   [ 0.0,  1.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 871   
+   [ 1.0,  2.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 592              
+   [ 2.0,  3.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇ 333                         
+   [ 3.0,  4.0) ┤▇▇▇▇▇ 127                                 
+   [ 4.0,  5.0) ┤▇▇ 44                                     
    [ 5.0,  6.0) ┤▇ 17                                      
-   [ 6.0,  7.0) ┤ 10                                       
-   [ 7.0,  8.0) ┤ 3                                        
+   [ 6.0,  7.0) ┤▇ 13                                      
+   [ 7.0,  8.0) ┤ 2                                        
    [ 8.0,  9.0) ┤ 1                                        
                 └                                        ┘ 
                                 Frequency</code></pre><h2 id="Core-structures,-with-space-1"><a class="docs-heading-anchor" href="#Core-structures,-with-space-1">Core structures, with space</a><a class="docs-heading-anchor-permalink" href="#Core-structures,-with-space-1" title="Permalink"></a></h2><p>We now expand this model to (in this case) a 2D grid. The rules are the same but agents exchange wealth only with their neighbors. We therefore have to add a <code>pos</code> field as the second field of the agents:</p><pre><code class="language-julia">mutable struct WealthInSpace &lt;: AbstractAgent
     id::Int
-    pos::NTuple{2, Int}
+    pos::NTuple{2,Int}
     wealth::Int
 end
 
-function wealth_model_2D(;dims = (25,25), wealth = 1, M = 1000)
-  space = GridSpace(dims, periodic = true)
-  model = ABM(WealthInSpace, space; scheduler = random_activation)
-  for i in 1:M # add agents in random nodes
-      add_agent!(model, wealth)
-  end
-  return model
+function wealth_model_2D(; dims = (25, 25), wealth = 1, M = 1000)
+    space = GridSpace(dims, periodic = true)
+    model = ABM(WealthInSpace, space; scheduler = random_activation)
+    for i in 1:M # add agents in random nodes
+        add_agent!(model, wealth)
+    end
+    return model
 end
 
 model2D = wealth_model_2D()</code></pre><pre><code class="language-none">AgentBasedModel with 1000 agents of type WealthInSpace
  space: GridSpace with 625 nodes and 1250 edges
- scheduler: random_activation</code></pre><p>The agent actions are a just a bit more complicated in this example. Now the agents can only give wealth to agents that exist on the same or neighboring nodes (their &quot;neighbhors&quot;).</p><pre><code class="language-julia">function agent_step_2d!(agent, model)
+ scheduler: random_activation</code></pre><p>The agent actions are a just a bit more complicated in this example. Now the agents can only give wealth to agents that exist on the same or neighboring nodes (their &quot;neighbors&quot;).</p><pre><code class="language-julia">function agent_step_2d!(agent, model)
     agent.wealth == 0 &amp;&amp; return # do nothing
     agent_node = coord2vertex(agent.pos, model)
     neighboring_nodes = node_neighbors(agent_node, model)
@@ -87,10 +87,10 @@ model2D = wealth_model_2D()</code></pre><pre><code class="language-none">AgentBa
 end</code></pre><pre><code class="language-none">agent_step_2d! (generic function with 1 method)</code></pre><h2 id="Running-the-model-with-space-1"><a class="docs-heading-anchor" href="#Running-the-model-with-space-1">Running the model with space</a><a class="docs-heading-anchor-permalink" href="#Running-the-model-with-space-1" title="Permalink"></a></h2><pre><code class="language-julia">using Random
 Random.seed!(5)
 init_wealth = 4
-model = wealth_model_2D(;wealth = init_wealth)
+model = wealth_model_2D(; wealth = init_wealth)
 agent_properties = [:wealth, :pos]
-data = step!(model, agent_step!, 10, agent_properties, when = [1, 5, 10], step0=false)
-data[end-20:end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>id</th><th>wealth</th><th>pos</th><th>step</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Tuple…</th><th>Int64</th></tr></thead><tbody><p>21 rows × 4 columns</p><tr><th>1</th><td>980</td><td>2</td><td>(10, 23)</td><td>10</td></tr><tr><th>2</th><td>981</td><td>4</td><td>(21, 1)</td><td>10</td></tr><tr><th>3</th><td>982</td><td>1</td><td>(18, 13)</td><td>10</td></tr><tr><th>4</th><td>983</td><td>2</td><td>(24, 7)</td><td>10</td></tr><tr><th>5</th><td>984</td><td>0</td><td>(24, 1)</td><td>10</td></tr><tr><th>6</th><td>985</td><td>4</td><td>(4, 10)</td><td>10</td></tr><tr><th>7</th><td>986</td><td>2</td><td>(5, 5)</td><td>10</td></tr><tr><th>8</th><td>987</td><td>6</td><td>(21, 6)</td><td>10</td></tr><tr><th>9</th><td>988</td><td>3</td><td>(11, 18)</td><td>10</td></tr><tr><th>10</th><td>989</td><td>8</td><td>(19, 16)</td><td>10</td></tr><tr><th>11</th><td>990</td><td>0</td><td>(14, 25)</td><td>10</td></tr><tr><th>12</th><td>991</td><td>4</td><td>(17, 20)</td><td>10</td></tr><tr><th>13</th><td>992</td><td>3</td><td>(25, 22)</td><td>10</td></tr><tr><th>14</th><td>993</td><td>5</td><td>(24, 1)</td><td>10</td></tr><tr><th>15</th><td>994</td><td>9</td><td>(16, 13)</td><td>10</td></tr><tr><th>16</th><td>995</td><td>10</td><td>(1, 18)</td><td>10</td></tr><tr><th>17</th><td>996</td><td>4</td><td>(19, 22)</td><td>10</td></tr><tr><th>18</th><td>997</td><td>8</td><td>(21, 2)</td><td>10</td></tr><tr><th>19</th><td>998</td><td>4</td><td>(6, 21)</td><td>10</td></tr><tr><th>20</th><td>999</td><td>1</td><td>(13, 1)</td><td>10</td></tr><tr><th>21</th><td>1000</td><td>4</td><td>(2, 7)</td><td>10</td></tr></tbody></table><p>Okay, now we want to get the 2D spatial wealth distribution of the model. That is actually straightforward:</p><pre><code class="language-julia">function wealth_distr(data, model, n)
+data, _ = run!(model, agent_step!, 10; agent_properties = agent_properties, when = [1, 5, 9])
+data[(end - 20):end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>step</th><th>id</th><th>wealth</th><th>pos</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Int64</th><th>Tuple…</th></tr></thead><tbody><p>21 rows × 4 columns</p><tr><th>1</th><td>9</td><td>980</td><td>2</td><td>(10, 23)</td></tr><tr><th>2</th><td>9</td><td>981</td><td>5</td><td>(21, 1)</td></tr><tr><th>3</th><td>9</td><td>982</td><td>2</td><td>(18, 13)</td></tr><tr><th>4</th><td>9</td><td>983</td><td>2</td><td>(24, 7)</td></tr><tr><th>5</th><td>9</td><td>984</td><td>1</td><td>(24, 1)</td></tr><tr><th>6</th><td>9</td><td>985</td><td>3</td><td>(4, 10)</td></tr><tr><th>7</th><td>9</td><td>986</td><td>3</td><td>(5, 5)</td></tr><tr><th>8</th><td>9</td><td>987</td><td>6</td><td>(21, 6)</td></tr><tr><th>9</th><td>9</td><td>988</td><td>4</td><td>(11, 18)</td></tr><tr><th>10</th><td>9</td><td>989</td><td>6</td><td>(19, 16)</td></tr><tr><th>11</th><td>9</td><td>990</td><td>1</td><td>(14, 25)</td></tr><tr><th>12</th><td>9</td><td>991</td><td>3</td><td>(17, 20)</td></tr><tr><th>13</th><td>9</td><td>992</td><td>4</td><td>(25, 22)</td></tr><tr><th>14</th><td>9</td><td>993</td><td>5</td><td>(24, 1)</td></tr><tr><th>15</th><td>9</td><td>994</td><td>9</td><td>(16, 13)</td></tr><tr><th>16</th><td>9</td><td>995</td><td>10</td><td>(1, 18)</td></tr><tr><th>17</th><td>9</td><td>996</td><td>5</td><td>(19, 22)</td></tr><tr><th>18</th><td>9</td><td>997</td><td>8</td><td>(21, 2)</td></tr><tr><th>19</th><td>9</td><td>998</td><td>4</td><td>(6, 21)</td></tr><tr><th>20</th><td>9</td><td>999</td><td>0</td><td>(13, 1)</td></tr><tr><th>21</th><td>9</td><td>1000</td><td>4</td><td>(2, 7)</td></tr></tbody></table><p>Okay, now we want to get the 2D spatial wealth distribution of the model. That is actually straightforward:</p><pre><code class="language-julia">function wealth_distr(data, model, n)
     W = zeros(Int, size(model.space))
     for row in eachrow(filter(r -&gt; r.step == n, data)) # iterate over rows at a specific step
         W[row.pos...] += row.wealth
@@ -100,147 +100,127 @@ end
 
 W1 = wealth_distr(data, model2D, 1)
 W5 = wealth_distr(data, model2D, 5)
-W10 = wealth_distr(data, model2D, 10)</code></pre><pre><code class="language-none">25×25 Array{Int64,2}:
-  2   4   4   3   3   4   0   2   3  …   0  13   9   0   4  11   4  18   5
-  3   8   5   6   5   0   7   9   0      5   9   3   7  21   1  25   0   1
-  7   3   3  16   7   3   2  16  10      0   3   1  34   0   8  11   6  14
- 24  22   8   3   0   0   1  14   3      3  19  18   9   3   0   4  12  24
-  7   0   6   6  16  14   5   3   9      2   3   7   0  10  20   0   6   0
-  7   0  10  15   4   2   1   0   4  …   5   6   0  18   5  14   4  19   9
-  3   1  11   8  11   5   0   6   2     11   0   5   1   0  11   0   1   2
- 14   0  15   4  12   2   0   7   1      0   0   5  28   0   3   7  14   5
-  0   0   3   0  22  20   6  19   0     10   0   9  10  21   7   5  13  10
- 11  21  13   7   6   3   0  15  10     21   0   7   4  15   6   2   5   0
-  ⋮                   ⋮              ⋱                   ⋮              
-  0  11  13   0  15  10  10   0   4      8   8   3  10   9  13   3   0   3
-  8   0  10   0   8   0   2  13  12      0   7   1  10   5   9   5  10   5
-  1   3   0  12   5  10   0   0  17     14   6   0   2   6  12  21   4   0
-  6   3   0   0   4   1  11  21   2      3  11   0  11   0   4  17   2   4
-  4   8  14   0   9  24   0  11   6  …   4  12   0   2   0   4   0   3   8
-  0  11   0  19  15  11   9   2   0     12   2   4   9   0   4  18   0  14
-  6   2  31   0   7   7  16   0   2      2   5   0   0   4   3   5   2  16
- 11   6   0   5   3   0   9   9   1      0   5   3   0   2   0   9   2   2
-  2   0   0   0   2   5  13   3   1      3   4   8   3  10   9   4   3   2</code></pre><pre><code class="language-julia">using Plots
+W10 = wealth_distr(data, model2D, 9);</code></pre><pre><code class="language-julia">using Plots
 Plots.heatmap(W1)</code></pre><?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 2400 1600">
 <defs>
-  <clipPath id="clip4100">
+  <clipPath id="clip1900">
     <rect x="0" y="0" width="2400" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip4100)" d="
+<path clip-path="url(#clip1900)" d="
 M0 1600 L2400 1600 L2400 0 L0 0  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip4101">
+  <clipPath id="clip1901">
     <rect x="480" y="0" width="1681" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip4100)" d="
+<path clip-path="url(#clip1900)" d="
 M140.517 1487.47 L2112.76 1487.47 L2112.76 47.2441 L140.517 47.2441  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip4102">
+  <clipPath id="clip1902">
     <rect x="140" y="47" width="1973" height="1441"/>
   </clipPath>
 </defs>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   495.52,1487.47 495.52,47.2441 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   889.968,1487.47 889.968,47.2441 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1284.42,1487.47 1284.42,47.2441 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1678.86,1487.47 1678.86,47.2441 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   2073.31,1487.47 2073.31,47.2441 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,1228.23 2112.76,1228.23 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,940.187 2112.76,940.187 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,652.141 2112.76,652.141 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,364.095 2112.76,364.095 
   "/>
-<polyline clip-path="url(#clip4102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip1902)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,76.0487 2112.76,76.0487 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 2112.76,1487.47 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 140.517,47.2441 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   495.52,1487.47 495.52,1470.19 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   889.968,1487.47 889.968,1470.19 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1284.42,1487.47 1284.42,1470.19 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1678.86,1487.47 1678.86,1470.19 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2073.31,1487.47 2073.31,1470.19 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1228.23 164.184,1228.23 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,940.187 164.184,940.187 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,652.141 164.184,652.141 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,364.095 164.184,364.095 
   "/>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,76.0487 164.184,76.0487 
   "/>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 495.52, 1541.47)" x="495.52" y="1541.47">5</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 889.968, 1541.47)" x="889.968" y="1541.47">10</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1284.42, 1541.47)" x="1284.42" y="1541.47">15</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1678.86, 1541.47)" x="1678.86" y="1541.47">20</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 2073.31, 1541.47)" x="2073.31" y="1541.47">25</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 1245.73)" x="116.517" y="1245.73">5</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 957.687)" x="116.517" y="957.687">10</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 669.641)" x="116.517" y="669.641">15</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 381.595)" x="116.517" y="381.595">20</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 93.5487)" x="116.517" y="93.5487">25</text>
 </g>
-<g clip-path="url(#clip4102)">
+<g clip-path="url(#clip1902)">
 <image width="1972" height="1440" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAB7QAAAWgCAYAAADeiXybAAAgAElEQVR4nOzb76vedR3H8XM852w7
 63LnpBsebTsjxJnKhlOQlUI3ykByd8J+3MhAcMEECWIRQXojb1UiSLDdmDBoFEUahIKUdCOwnANd
@@ -570,11 +550,11 @@ AAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABDp/1fgS29IQgWjAAAAAElFTkSuQmCC
 " transform="translate(141, 47)"/>
 </g>
 <defs>
-  <clipPath id="clip4103">
+  <clipPath id="clip1903">
     <rect x="2160" y="47" width="73" height="1441"/>
   </clipPath>
 </defs>
-<g clip-path="url(#clip4103)">
+<g clip-path="url(#clip1903)">
 <image width="72" height="1440" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAEgAAAWgCAYAAAD9wgUPAAAMT0lEQVR4nO3dwY3sRhAFQY5Q/lsh
 L6XfLQtUeSQPERYsEg8kmpyZ/f17/r4P/+uvt/+ArxMoCBQECgKFOffft/+GT7OgIFAQKAgUBApz
@@ -635,25 +615,25 @@ IFAQKHg3HywoCBQECgIFgcI8HpitLCgIFAQKAgVHjWBBQaAgUBAoCBS89gkWFAQKAgWBwn8v2/BP
 X8iooQAAAABJRU5ErkJggg==
 " transform="translate(2161, 47)"/>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1501.13)" x="2268.76" y="1501.13">0</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1252.81)" x="2268.76" y="1252.81">5</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1004.49)" x="2268.76" y="1004.49">10</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 756.179)" x="2268.76" y="756.179">15</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 507.863)" x="2268.76" y="507.863">20</text>
 </g>
-<g clip-path="url(#clip4100)">
+<g clip-path="url(#clip1900)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 259.548)" x="2268.76" y="259.548">25</text>
 </g>
-<polyline clip-path="url(#clip4100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip1900)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2232.76,1487.47 2232.76,1487.47 2256.76,1487.47 2232.76,1487.47 2232.76,1239.16 2256.76,1239.16 2232.76,1239.16 2232.76,990.843 2256.76,990.843 2232.76,990.843 
   2232.76,742.528 2256.76,742.528 2232.76,742.528 2232.76,494.212 2256.76,494.212 2232.76,494.212 2232.76,245.897 2256.76,245.897 2232.76,245.897 2232.76,47.2441 
   
@@ -662,123 +642,123 @@ X8iooQAAAABJRU5ErkJggg==
 <pre><code class="language-julia">Plots.heatmap(W5)</code></pre><?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 2400 1600">
 <defs>
-  <clipPath id="clip4700">
+  <clipPath id="clip2500">
     <rect x="0" y="0" width="2400" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip4700)" d="
+<path clip-path="url(#clip2500)" d="
 M0 1600 L2400 1600 L2400 0 L0 0  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip4701">
+  <clipPath id="clip2501">
     <rect x="480" y="0" width="1681" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip4700)" d="
+<path clip-path="url(#clip2500)" d="
 M140.517 1487.47 L2112.76 1487.47 L2112.76 47.2441 L140.517 47.2441  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip4702">
+  <clipPath id="clip2502">
     <rect x="140" y="47" width="1973" height="1441"/>
   </clipPath>
 </defs>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   495.52,1487.47 495.52,47.2441 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   889.968,1487.47 889.968,47.2441 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1284.42,1487.47 1284.42,47.2441 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1678.86,1487.47 1678.86,47.2441 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   2073.31,1487.47 2073.31,47.2441 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,1228.23 2112.76,1228.23 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,940.187 2112.76,940.187 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,652.141 2112.76,652.141 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,364.095 2112.76,364.095 
   "/>
-<polyline clip-path="url(#clip4702)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip2502)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,76.0487 2112.76,76.0487 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 2112.76,1487.47 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 140.517,47.2441 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   495.52,1487.47 495.52,1470.19 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   889.968,1487.47 889.968,1470.19 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1284.42,1487.47 1284.42,1470.19 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1678.86,1487.47 1678.86,1470.19 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2073.31,1487.47 2073.31,1470.19 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1228.23 164.184,1228.23 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,940.187 164.184,940.187 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,652.141 164.184,652.141 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,364.095 164.184,364.095 
   "/>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,76.0487 164.184,76.0487 
   "/>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 495.52, 1541.47)" x="495.52" y="1541.47">5</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 889.968, 1541.47)" x="889.968" y="1541.47">10</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1284.42, 1541.47)" x="1284.42" y="1541.47">15</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1678.86, 1541.47)" x="1678.86" y="1541.47">20</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 2073.31, 1541.47)" x="2073.31" y="1541.47">25</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 1245.73)" x="116.517" y="1245.73">5</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 957.687)" x="116.517" y="957.687">10</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 669.641)" x="116.517" y="669.641">15</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 381.595)" x="116.517" y="381.595">20</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 93.5487)" x="116.517" y="93.5487">25</text>
 </g>
-<g clip-path="url(#clip4702)">
+<g clip-path="url(#clip2502)">
 <image width="1972" height="1440" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAB7QAAAWgCAYAAADeiXybAAAgAElEQVR4nOzb76vW9R3H8XOOx2lH
 j4YGtmmtTXda9IPWL6lohDWDGKNYN8ph3fDOtIjdjKKN0Z3uDk5mYxKbo+2Ga96IwNIYjNGqFVvN
@@ -1111,11 +1091,11 @@ AAAASUVORK5CYII=
 " transform="translate(141, 47)"/>
 </g>
 <defs>
-  <clipPath id="clip4703">
+  <clipPath id="clip2503">
     <rect x="2160" y="47" width="73" height="1441"/>
   </clipPath>
 </defs>
-<g clip-path="url(#clip4703)">
+<g clip-path="url(#clip2503)">
 <image width="72" height="1440" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAEgAAAWgCAYAAAD9wgUPAAAMT0lEQVR4nO3dwY3sRhAFQY5Q/lsh
 L6XfLQtUeSQPERYsEg8kmpyZ/f17/r4P/+uvt/+ArxMoCBQECgKFOffft/+GT7OgIFAQKAgUBApz
@@ -1176,28 +1156,28 @@ IFAQKHg3HywoCBQECgIFgcI8HpitLCgIFAQKAgVHjWBBQaAgUBAoCBS89gkWFAQKAgWBwn8v2/BP
 X8iooQAAAABJRU5ErkJggg==
 " transform="translate(2161, 47)"/>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1501.13)" x="2268.76" y="1501.13">0</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1261.09)" x="2268.76" y="1261.09">5</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1021.05)" x="2268.76" y="1021.05">10</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 781.011)" x="2268.76" y="781.011">15</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 540.972)" x="2268.76" y="540.972">20</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 300.934)" x="2268.76" y="300.934">25</text>
 </g>
-<g clip-path="url(#clip4700)">
+<g clip-path="url(#clip2500)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 60.8953)" x="2268.76" y="60.8953">30</text>
 </g>
-<polyline clip-path="url(#clip4700)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip2500)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2232.76,1487.47 2232.76,1487.47 2256.76,1487.47 2232.76,1487.47 2232.76,1247.44 2256.76,1247.44 2232.76,1247.44 2232.76,1007.4 2256.76,1007.4 2232.76,1007.4 
   2232.76,767.359 2256.76,767.359 2232.76,767.359 2232.76,527.321 2256.76,527.321 2232.76,527.321 2232.76,287.283 2256.76,287.283 2232.76,287.283 2232.76,47.2441 
   2256.76,47.2441 2232.76,47.2441 
@@ -1206,143 +1186,131 @@ X8iooQAAAABJRU5ErkJggg==
 <pre><code class="language-julia">Plots.heatmap(W10)</code></pre><?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 2400 1600">
 <defs>
-  <clipPath id="clip5300">
+  <clipPath id="clip3100">
     <rect x="0" y="0" width="2400" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip5300)" d="
+<path clip-path="url(#clip3100)" d="
 M0 1600 L2400 1600 L2400 0 L0 0  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip5301">
+  <clipPath id="clip3101">
     <rect x="480" y="0" width="1681" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip5300)" d="
+<path clip-path="url(#clip3100)" d="
 M140.517 1487.47 L2112.76 1487.47 L2112.76 47.2441 L140.517 47.2441  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip5302">
+  <clipPath id="clip3102">
     <rect x="140" y="47" width="1973" height="1441"/>
   </clipPath>
 </defs>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   495.52,1487.47 495.52,47.2441 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   889.968,1487.47 889.968,47.2441 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1284.42,1487.47 1284.42,47.2441 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1678.86,1487.47 1678.86,47.2441 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   2073.31,1487.47 2073.31,47.2441 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,1228.23 2112.76,1228.23 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,940.187 2112.76,940.187 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,652.141 2112.76,652.141 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,364.095 2112.76,364.095 
   "/>
-<polyline clip-path="url(#clip5302)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3102)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   140.517,76.0487 2112.76,76.0487 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 2112.76,1487.47 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1487.47 140.517,47.2441 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   495.52,1487.47 495.52,1470.19 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   889.968,1487.47 889.968,1470.19 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1284.42,1487.47 1284.42,1470.19 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1678.86,1487.47 1678.86,1470.19 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2073.31,1487.47 2073.31,1470.19 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,1228.23 164.184,1228.23 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,940.187 164.184,940.187 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,652.141 164.184,652.141 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,364.095 164.184,364.095 
   "/>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   140.517,76.0487 164.184,76.0487 
   "/>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 495.52, 1541.47)" x="495.52" y="1541.47">5</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 889.968, 1541.47)" x="889.968" y="1541.47">10</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1284.42, 1541.47)" x="1284.42" y="1541.47">15</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1678.86, 1541.47)" x="1678.86" y="1541.47">20</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 2073.31, 1541.47)" x="2073.31" y="1541.47">25</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 1245.73)" x="116.517" y="1245.73">5</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 957.687)" x="116.517" y="957.687">10</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 669.641)" x="116.517" y="669.641">15</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 381.595)" x="116.517" y="381.595">20</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 116.517, 93.5487)" x="116.517" y="93.5487">25</text>
 </g>
-<g clip-path="url(#clip5302)">
+<g clip-path="url(#clip3102)">
 <image width="1972" height="1440" xlink:href="data:image/png;base64,
-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
+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
@@ -1351,25 +1319,10 @@ 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
-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
+AAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAirXx43deqN7T1+49mqie0NTe/r3pCW7dO3Fc9oa0D
+C3urJ7R1avFg9YS2Do/OVk9o60sjX6me0Nbrg9PVE1o6dc5v3bC+sfbO6gltvXm+ekFf1z1/uHpC
+W4uL89UT2to6uaN6QluvXqhe0Jd3KMPx/mR4cyverp7Q1rkLR6sntPX3wcvVE9ryLDu8bRM7qye0
+dfKyI9UT2lo1WFM9oSUntAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEb
 AAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAA
 EEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAA
 AAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiC
@@ -1377,35 +1330,27 @@ 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
-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
+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
-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
+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
@@ -1413,103 +1358,9 @@ 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
-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
+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
@@ -1519,115 +1370,10 @@ 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
-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
+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
@@ -1637,9 +1383,78 @@ AAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiC
 NgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAA
 ACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEA
 AAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACR
-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
+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
@@ -1647,18 +1462,183 @@ AAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAA
 kQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAA
 AAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRo
 AwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAA
+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
-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
-RK5CYII=
+0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAA
+AABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYA
+AAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAg
+kqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAA
+AAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRt
+AAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAA
+QKQ5uy+9rXpDW1sOPVA9oa0fLL+2ekJbP/nnquoJbe16ZXX1hLbuf29P9YS2xicPVk9o64kjW6sn
+MGT2HJ+untDWgdMPVU9oa8uh6gV9jY1sqp7AELps5vrqCW29MPHz6gltvV49gKHz9NT+6gltvfH9
+A9UT2pp35+nqCW2NjayontDWmunl1RPa+sh5Z6ontPXY+29XT2jJCW0AAAAAAAAAIgnaAAAAAAAA
+AEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAA
+AAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCS
+oA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAA
+AACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0A
+AAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBvhf+/bzYuddhnE4M2cydjKj
+MyTajLGxhKkpxtQQxB9prGBBQkFcdCEuUtJNwWZnd4WstC7cNIgQhNRFIQhGqWjBEIkuKjXESnEw
+BipOYxJtJ9bEDE4Sk05m/B/O5rkf5rr+gpvDeXnP+37OFwAAAAAAgEiCNgAAAAAAAACRBG0AAAAA
+AAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEb
+AAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAA
+EEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAA
+AAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiC
+NgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQaO3LlreoNrEN/uPaB6glt7Rl9sHpCW5ODteoJ
+bW0Z+N4N68aGC9UT2lpYuV49oa3BYKp6QkvnVl+vntDWkx/6ZvWEtnZNj1RPaOvmPZ/dsI4uVy/o
+a+vYRPUE1qFvbTtcPaGlo+8cq57Q1uSGmeoJbU0ecX5sWJ5jh7dvfEf1hLZOXHevGNaZy67ZYY0P
+pqsntOQOCwAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0
+AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAA
+AJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAA
+AAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgk
+aAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAA
+AAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsA
+AAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQ
+SdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAA
+AAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2
+AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAA
+IJKgDQAAAAAAAECksT1ru6s3tLW44Wz1BNahz25ZrZ7Q1vff+3P1hLaW7l6untDWxPjHqie0NX/r
+ZPWEtuamnqie0NLC8qnqCW29cvtC9YS2rq4cqp7Q1psrZ6ontDU7ta96AuvQjx85WD2hre8t/Lt6
+QksHNx+untDWievHqie09dInn66e0NYPLt2qntDWp6ZXqie0NXvX7+JhvbD94eoJbf308sbqCS05
+oQ0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAA
+AACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0A
+AAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABA
+JEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAA
+AAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgna
+AAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAA
+gEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAA
+AAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQS
+tAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAA
+AACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACDSyOzU
+Y2vVI7paXD5bPaGtA5PPVE9oa3FtqXpCW4/PfLh6QluTA7eKYb167Vr1hLaujl6pntDWo6N7qie0
+9IubJ6ontPWRiUeqJ7S1dPdy9YS2frn3c9UT2nrqL4vVE9pyzQ5v2/inqye09ffbv6ue0NIHxz9e
+PaGtz4/ur57Q1umbx6sntHVw8+HqCW0d+sS71RPa+sq5n1dPaGvPpq9XT2hr/tbJ6gktOaENAAAA
+AAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRo
+AwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAA
+ACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAA
+AAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ
+0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAA
+AABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYA
+AAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAg
+kqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAA
+AAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRt
+AAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAA
+QKSRhSe/sFY9gvXn8Om91RPa+tvIP6ontLWwfKp6AuvQYDBVPaGt57c9VT2hrZf+86fqCS3Nre6s
+ntDW8obb1RPamr91snpCW3NTT1RPaOv57VurJ7R15Mpb1RPa+u2XBtUT2nr8tXvVE1p6ccdc9QTW
+oZffnqie0Nb8yPnqCW0tLp+tntCWZ4rhza7eXz2hrV8/92r1hJac0AYAAAAAAAAgkqANAAAAAAAA
+QCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAA
+AAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ
+2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAA
+AIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYA
+AAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABE
+ErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAA
+AAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAgkqAN
+AAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAAAAAAACIJ2gAAAAAAAABEErQBAAAAAAAA
+iCRoAwAAAAAAABBJ0AYAAAAAAAAgkqANAAAAAAAAQCRBGwAAAAAAAIBIgjYAAAAAAAAAkQRtAAAA
+AAAAACIJ2gAAAAAAAABEErQBAAAAAAAAiCRoAwAAAAAAABBJ0AYAAAAAAAAg0siByWfXqkd0dfrm
+8eoJbc1M7Kqe0Na3H9hXPaGtn/xzw0IuKwAACHBJREFUpXpCWwujf62e0NbS3cvVE9r60cNfrp7Q
+1stvT1RPaOm1939VPaGtnWP7qye0NTe2uXpCW/Orl6onsA49tPZA9YS2zq2+Xj2hrRu3L1RPaMm7
+p+HdubdUPaGt/975bvWEtsZGnq6e0Nb+TYeqJ7S1477J6gltvXfn/eoJbe2a3lg9oSUntAEAAAAA
+AACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0A
+AAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABA
+JEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAA
+AAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgna
+AAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAA
+gEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAA
+AAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQS
+tAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAA
+AACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0A
+AAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQamZ16bK16RFdz
+qzurJ7S1OPqv6gltza7eXz2hLd+74S0sn6qe0NaByWeqJ7S1a3pj9YS2jr5zrHpCS67X4S2uLVVP
+aOsbW2eqJ7T1xjX/zx7W/Oql6glt+V08vJmJXdUT2npwZHf1hJbmxjZXT2jr96vz1RPaenR0T/WE
+tl744vnqCW195szF6gltnf/qR6sntDX3yh+rJ7Q1GExVT2jJGwAAAAAAAAAAIgnaAAAAAAAAAEQS
+tAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAA
+AACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0A
+AAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACI
+JGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAA
+AAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEb
+AAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAA
+EEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIgnaAAAA
+AAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAAACCSoA0AAAAAAABAJEEbAAAAAAAAgEiC
+NgAAAAAAAACRBG0AAAAAAAAAIgnaAAAAAAAAAEQStAEAAAAAAACIJGgDAAAAAAAAEEnQBgAAAAAA
+ACCSoA0AAAAAAABAJEEbAAAAAAAAgEiCNgAAAAAAAACRBG0AAAAAAAAAIo1MjD+4Vj2iq51j+6sn
+tHV19Er1hLb+d2+pekJb9w2mqye0NblhpnpCWwvLp6ontDU7ta96AuvMizvmqie09bNLU9UT2to0
+5j/Gw/rhm4vVE9p6aPe71RPa8jw2vBu3L1RPYJ05sv3Z6gltvXF9pXpCW6dvHq+e0JZ3AMP72qa9
+1RPa+s2ti9UT2vrOji3VE9p67uJC9YSWvD0BAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2
+AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAA
+IJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAA
+AAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEE
+bQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAA
+AEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMA
+AAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAi
+CdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAGAAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAA
+AACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAARBK0AQAAAAAAAIgkaAMAAAAAAAAQSdAG
+AAAAAAAAIJKgDQAAAAAAAEAkQRsAAAAAAACASII2AAAAAAAAAJEEbQAAAAAAAAAiCdoAAAAAAAAA
+RBK0AQAAAAAAAIgkaAMAAAAAAAAQ6f9cp1aEM9d5fgAAAABJRU5ErkJggg==
 " transform="translate(141, 47)"/>
 </g>
 <defs>
-  <clipPath id="clip5303">
+  <clipPath id="clip3103">
     <rect x="2160" y="47" width="73" height="1441"/>
   </clipPath>
 </defs>
-<g clip-path="url(#clip5303)">
+<g clip-path="url(#clip3103)">
 <image width="72" height="1440" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAEgAAAWgCAYAAAD9wgUPAAAMT0lEQVR4nO3dwY3sRhAFQY5Q/lsh
 L6XfLQtUeSQPERYsEg8kmpyZ/f17/r4P/+uvt/+ArxMoCBQECgKFOffft/+GT7OgIFAQKAgUBApz
@@ -1719,34 +1699,34 @@ IFAQKHg3HywoCBQECgIFgcI8HpitLCgIFAQKAgVHjWBBQaAgUBAoCBS89gkWFAQKAgWBwn8v2/BP
 X8iooQAAAABJRU5ErkJggg==
 " transform="translate(2161, 47)"/>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1501.13)" x="2268.76" y="1501.13">0</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1311.62)" x="2268.76" y="1311.62">5</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 1122.12)" x="2268.76" y="1122.12">10</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 932.614)" x="2268.76" y="932.614">15</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 743.11)" x="2268.76" y="743.11">20</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 553.606)" x="2268.76" y="553.606">25</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 364.102)" x="2268.76" y="364.102">30</text>
 </g>
-<g clip-path="url(#clip5300)">
+<g clip-path="url(#clip3100)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2268.76, 174.598)" x="2268.76" y="174.598">35</text>
 </g>
-<polyline clip-path="url(#clip5300)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3100)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   2232.76,1487.47 2232.76,1487.47 2256.76,1487.47 2232.76,1487.47 2232.76,1297.97 2256.76,1297.97 2232.76,1297.97 2232.76,1108.47 2256.76,1108.47 2232.76,1108.47 
   2232.76,918.963 2256.76,918.963 2232.76,918.963 2232.76,729.459 2256.76,729.459 2232.76,729.459 2232.76,539.955 2256.76,539.955 2232.76,539.955 2232.76,350.451 
   2256.76,350.451 2232.76,350.451 2232.76,160.947 2256.76,160.947 2232.76,160.947 2232.76,47.2441 
   "/>
 </svg>
-<p>What we see is that wealth gets more and more localized.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../social_distancing/">« Continuous space social distancing for COVID-19</a><a class="docs-footer-nextpage" href="../forest_fire/">Forest fire »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 5 April 2020 11:52">Sunday 5 April 2020</span>. Using Julia version 1.4.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<p>What we see is that wealth gets more and more localized.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../social_distancing/">« Continuous space social distancing for COVID-19</a><a class="docs-footer-nextpage" href="../forest_fire/">Forest fire »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 6 April 2020 20:43">Monday 6 April 2020</span>. Using Julia version 1.4.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
