@@ -115,7 +115,6 @@ end
 
 function Base.show(io::IO, abm::ABM)
     n = [isconcretetype(a) ? nameof(a) : string(a) for a in abm.agent_types]
-    n = isconcretetype.(abm.agents) ? nameof(A) : string(A)
     s = "AgentBasedModel with $(nagents(abm)) agents of type $(n)"
     if abm.space == nothing
         s*= "\n no space"
@@ -296,4 +295,11 @@ function property_activation(p::Symbol)
         s = sortperm(properties)
         return ids[s]
     end
+end
+
+function by_type(model::ABM)
+    ids = collect(keys(model.agents))
+    types = [typeof(model.agents[id]) for id in ids]
+    s = sortperm(types, by= x -> findfirst(isequal(x),model.agent_types))
+    return ids[s]
 end
