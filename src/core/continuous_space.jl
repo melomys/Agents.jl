@@ -134,26 +134,26 @@ function randompos(space::ContinuousSpace)
   return pos
 end
 
-function add_agent!(agent::A, model::ABM{<: ContinuousSpace}) where {A<:AbstractAgent}
+function add_agent!(agent::A, model::ABM{A, <: ContinuousSpace}) where {A<:AbstractAgent}
   agent.pos = randompos(model.space)
   add_agent_pos!(agent, model)
 end
 
-function add_agent!(agent::A, pos, model::ABM{<: ContinuousSpace}) where {A<:AbstractAgent}
+function add_agent!(agent::A, pos, model::ABM{A, <: ContinuousSpace}) where {A<:AbstractAgent}
   agent.pos = pos
   add_agent_pos!(agent, model)
 end
 
 # versions that create the agents
-#function add_agent!(model::ABM{A, <: ContinuousSpace}, args...) where {A<:AbstractAgent}
-#  add_agent!(randompos(model.space), model, args...)
-#end
+function add_agent!(model::ABM{A, <: ContinuousSpace}, args...) where {A<:AbstractAgent}
+  add_agent!(randompos(model.space), model, args...)
+end
 
-#function add_agent!(pos::Tuple, model::ABM{<: ContinuousSpace}, args...) where {A<:AbstractAgent}
-#  id = nextid(model)
-#  agent = A(id, pos, args...)
-#  add_agent_pos!(agent, model)
-#end
+function add_agent!(pos::Tuple, model::ABM{A, <: ContinuousSpace}, args...) where {A<:AbstractAgent}
+  id = nextid(model)
+  agent = A(id, pos, args...)
+  add_agent_pos!(agent, model)
+end
 
 """
     move_agent!(agent::A, model::ABM{A, ContinuousSpace}, dt = 1.0)
@@ -164,7 +164,7 @@ For this continuous space version of `move_agent!`, the "evolution algorithm"
 is a trivial Euler scheme with `dt` the step size, i.e. the agent position is updated
 as `agent.pos += agent.vel * dt`.
 """
-function move_agent!(agent::A, model::ABM{S, F, P}, dt = 1.0) where {A<:AbstractAgent, S <: ContinuousSpace, F, P}
+function move_agent!(agent::A, model::ABM{A, S, F, P}, dt = 1.0) where {A<:AbstractAgent, S <: ContinuousSpace, F, P}
   model.space.update_vel!(agent, model)
   agent.pos = agent.pos .+ dt .* agent.vel
   if model.space.periodic
@@ -174,7 +174,7 @@ function move_agent!(agent::A, model::ABM{S, F, P}, dt = 1.0) where {A<:Abstract
   return agent.pos
 end
 
-function kill_agent!(agent::A, model::ABM{S}) where {A <: AbstractAgent, S<:ContinuousSpace}
+function kill_agent!(agent::AbstractAgent, model::ABM{A, S}) where {A, S<:ContinuousSpace}
   DBInterface.execute(model.space.deleteq, (agent.id,))
   delete!(model.agents, agent.id)
   return model

@@ -39,7 +39,6 @@ space.
 """
 abstract type AbstractAgent end
 
-
 function correct_pos_type(n, model)
     if typeof(model.space) <: GraphSpace
         return coord2vertex(n, model)
@@ -50,14 +49,12 @@ end
 
 SpaceType=Union{Nothing, AbstractSpace}
 
-struct AgentBasedModel{S<:SpaceType,F,P}
-    agent_types::Vector{Type{<:AbstractAgent}}
-    agents::Dict{Int,AbstractAgent}
+struct AgentBasedModel{A<:AbstractAgent, S<:SpaceType, F, P}
+    agents::Dict{Int,A}
     space::S
     scheduler::F
     properties::P
 end
-
 const ABM = AgentBasedModel
 agenttype(::ABM{A}) where {A} = A
 spacetype(::ABM{A, S}) where {A, S} = S
@@ -89,32 +86,22 @@ which are the fields of `AgentBasedModel`.
 Type tests for `AgentType` are done, and by default
 warnings are thrown when appropriate. Use keyword `warn=false` to supress that.
 """
-
 function AgentBasedModel(
-    agent_types::Vector{DataType},
-    space::S = nothing;
-    scheduler::F = fastest,
-    properties::P = nothing,
-    warn = true,
-) where {S<:SpaceType,F,P}
-    agent_validator.(agent_types, space, warn)
-    agents = Dict{Int,AbstractAgent}()
-    return AgentBasedModel{S,F,P}(
-        agent_types,
-        agents,
-        space,
-        scheduler,
-        properties,
-    )
+        ::Type{A}, space::S = nothing;
+        scheduler::F = fastest, properties::P = nothing, warn = true
+        ) where {A<:AbstractAgent, S<:SpaceType, F, P}
+    agent_validator(A, space, warn)
+
+    agents = Dict{Int, A}()
+    return ABM{A, S, F, P}(agents, space, scheduler, properties)
 end
 
-#deprecate
 function AgentBasedModel(agent::AbstractAgent, args...; kwargs...)
     return ABM(typeof(agent), args...; kwargs...)
 end
 
-function Base.show(io::IO, abm::ABM)
-    n = [isconcretetype(a) ? nameof(a) : string(a) for a in abm.agent_types]
+function Base.show(io::IO, abm::ABM{A}) where {A}
+    n = isconcretetype(A) ? nameof(A) : string(A)
     s = "AgentBasedModel with $(nagents(abm)) agents of type $(n)"
     if abm.space == nothing
         s*= "\n no space"
@@ -158,12 +145,9 @@ Return a property from the current `model`. Possibilities are
 Alternatively, all of these values can be returned using the `model.x` syntax.
 For example, if a model has the set of properties `Dict(:weight => 5, :current => false)`, retrieving these values can be obtained via `model.properties` as well as the `getproperty()` method. Equivalently, we can use `getproperty(model, :weight)` and `model.weight`.
 """
-
-function Base.getproperty(m::AgentBasedModel{S, F, P}, s::Symbol) where {A, S, F, P}
+function Base.getproperty(m::ABM{A, S, F, P}, s::Symbol) where {A, S, F, P}
     if s === :agents
         return getfield(m, :agents)
-    elseif s === :agent_types
-        return getfield(m, :agent_types)
     elseif s === :space
         return getfield(m, :space)
     elseif s === :scheduler
@@ -177,8 +161,7 @@ function Base.getproperty(m::AgentBasedModel{S, F, P}, s::Symbol) where {A, S, F
     end
 end
 
-
-function Base.setproperty!(m::AgentBasedModel{S, F, P}, s::Symbol, x) where {A, S, F, P}
+function Base.setproperty!(m::ABM{A, S, F, P}, s::Symbol, x) where {A, S, F, P}
     properties = getfield(m, :properties)
     if properties != nothing && haskey(properties, s)
         properties[s] = x
@@ -275,7 +258,7 @@ end
 At each step, activate only `p` percentage of randomly chosen agents.
 """
 function partial_activation(p::Real)
-    function partial(model::ABM{S, F, P}) where {S, F, P}
+    function partial(model::ABM{A, S, F, P}) where {A, S, F, P}
         ids = collect(keys(model.agents))
         return randsubseq(ids, p)
     end
@@ -289,17 +272,10 @@ with agents with greater `property` acting first. `property` is a `Symbol`, whic
 just dictates which field the agents to compare.
 """
 function property_activation(p::Symbol)
-    function by_property(model::ABM{S, F, P}) where {S, F, P}
+    function by_property(model::ABM{A, S, F, P}) where {A, S, F, P}
         ids = collect(keys(model.agents))
         properties = [getproperty(model.agents[id], p) for id in ids]
         s = sortperm(properties)
         return ids[s]
     end
-end
-
-function by_type(model::ABM)
-    ids = collect(keys(model.agents))
-    types = [typeof(model.agents[id]) for id in ids]
-    s = sortperm(types, by= x -> findfirst(isequal(x),model.agent_types))
-    return ids[s]
 end
