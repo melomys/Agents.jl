@@ -162,6 +162,7 @@ function add_agent!(agent::A, model::ABM{A, <: Nothing}) where {A}
 end
 
 
+
 """
     add_agent!([pos,] model::ABM, args...; kwargs...)
 Create and add a new agent to the model by constructing an agent of the
@@ -202,6 +203,13 @@ function add_agent!(model::ABM{A, Nothing}, properties...; kwargs...) where {A}
   @assert model.space == nothing
   id = nextid(model)
   model[id] = A(id, properties...; kwargs...)
+  return model[id]
+end
+
+function add_agent!(model::ABM{A, Nothing}, ::Type{B}, properties...; kwargs...) where {A, B <: A}
+  @assert model.space == nothing
+  id = nextid(model)
+  model[id] = B(id, properties...; kwargs...)
   return model[id]
 end
 
