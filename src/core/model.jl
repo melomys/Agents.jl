@@ -1,6 +1,6 @@
 export nagents, AbstractAgent, ABM, AgentBasedModel,
 random_activation, by_id, fastest,by_type, partial_activation, random_agent,
-property_activation, allagents
+property_activation, allagents, unniontypesu
 
 abstract type AbstractSpace end
 
@@ -95,8 +95,7 @@ function AgentBasedModel(
         ::Type{A}, space::S = nothing;
         scheduler::F = fastest, properties::P = nothing, warn = true
         ) where {A<:AbstractAgent, S<:SpaceType, F, P}
-    agent_validator.(uniontypes(A), space, warn)
-
+    [agent_validator(type, space,warn) for type in uniontypes(A)]
     agents = Dict{Int, A}()
     return ABM{A, S, F, P}(agents, space, scheduler, properties)
 end
@@ -302,8 +301,16 @@ function property_activation(p::Symbol)
     end
 end
 
-function by_type(model::ABM{A}) where {A}
-    ids = collect(keys(model.agents))
-    types = [typeof(model.agents[id]) for id in ids]
-    s = sortperm(types, by = x -> findfirst(isequal(x), uniontypes(A)))
+
+function by_type(arg_types...)
+    global ordered_types
+    ordered_types = collect(arg_types)
+    println(ordered_types)
+    function _by_type(model::ABM{A}) where {A}
+        @assert Set(ordered_types) == Set(uniontypes(A))
+        ids = collect(keys(model.agents))
+        agent_types = [typeof(model.agents[id]) for id in ids]
+        s = sortperm(agent_types, by = x -> findfirst(isequal(x), ordered_types))
+        return ids[s]
+    end
 end

@@ -1,6 +1,6 @@
 export run!, collect_agent_data!, collect_model_data!,
        init_agent_dataframe, init_model_dataframe, aggname
-       
+
 ###################################################
 # Definition of the data collection API
 ###################################################
@@ -101,6 +101,29 @@ function _run!(model, agent_step!, model_step!, n;
     return df_agent, df_model
 end
 
+function _run!(model, agent_steps!::Dict{DataType,Function}, model_step!,n;
+    when = true, when_model = when,
+    model_properties= nothing, agent_properties = nothing)
+
+    df_agent = init_agent_dataframe(model, agent_properties)
+    df_model = init_model_dataframe(model, model_properties)
+    if n isa Integer
+        if when == true; for c in eachcol(df_agent); sizehint!(c, n); end; end;
+        if when_model == true for c in eachcol(df_model); sizehint!(c,n); end; end;
+    end
+
+    s = 0
+    while until(s, n, model)
+        if should_we_collect(s, model, when)
+            collect_agent_data!(df_agent, model, agent_properties, s)
+        end
+        if should_we_collect(s, model, when_model)
+            collect_model_data!(df_model, model, model_properties, s)
+        end
+        step!(model, agent_steps!, model_step!, 1)
+        s += 1
+    end
+end
 ###################################################
 # core data collection functions per step
 ###################################################

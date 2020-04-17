@@ -46,6 +46,19 @@ function step!(model::ABM, agent_step!, model_step!, n)
   end
 end
 
+function step!(model::ABM, agent_steps!::Dict{DataType,Function}, model_step!, n)
+  s = 0
+  while until(s,n,model)
+    activation_order = model.scheduler(model)
+    for index in activation_order
+      haskey(model.agents, index) || continue
+      agent_steps![typeof(model.agents[index])](model.agents[index],model)
+    end
+    model_step!(model)
+    s += 1
+  end
+end
+
 function step!(model, agent_step!, model_step!, n; kwargs...)
   @warn "`step!` with keyword arguments is deprecated. Use `run!` instead."
   run!(model, agent_step!, model_step!, n; kwargs...)
