@@ -161,6 +161,11 @@ function add_agent!(agent::A, model::ABM{A, <: Nothing}) where {A}
   return agent
 end
 
+function add_agents!(agents::Vector{A}, args...) where {A}
+  for agent in agents
+    add_agent!(agent, args...)
+  end
+end
 
 
 """

@@ -83,7 +83,12 @@ function _run!(model, agent_step!, model_step!, n;
     df_agent = init_agent_dataframe(model, agent_properties)
     df_model = init_model_dataframe(model, model_properties)
     if n isa Integer
-        if when == true; for c in eachcol(df_agent); sizehint!(c, n); end; end
+        if typeof(df_agent) <: DataFrame
+            if when == true; for c in eachcol(df_agent); sizehint!(c, n); end; end
+        else
+            if when == true; for df in collect(values(df_agent)) for c in eachcol(df); sizehint!(c,n); end; end; end;
+        end
+
         if when_model == true; for c in eachcol(df_model); sizehint!(c, n); end; end
     end
 
@@ -100,30 +105,6 @@ function _run!(model, agent_step!, model_step!, n;
     end
     return df_agent, df_model
 end
-
-function _run!(model, agent_steps!::Dict{DataType,Function}, model_step!,n;
-    when = true, when_model = when,
-    model_properties= nothing, agent_properties = nothing)
-
-    df_agent = init_agent_dataframe(model, agent_properties)
-    df_model = init_model_dataframe(model, model_properties)
-    if n isa Integer
-        if when == true; for c in eachcol(df_agent); sizehint!(c, n); end; end;
-        if when_model == true for c in eachcol(df_model); sizehint!(c,n); end; end;
-    end
-
-    s = 0
-    while until(s, n, model)
-        if should_we_collect(s, model, when)
-            collect_agent_data!(df_agent, model, agent_properties, s)
-        end
-        if should_we_collect(s, model, when_model)
-            collect_model_data!(df_model, model, model_properties, s)
-        end
-        step!(model, agent_steps!, model_step!, 1)
-        s += 1
-    end
-end
 ###################################################
 # core data collection functions per step
 ###################################################
@@ -139,6 +120,15 @@ Collect and add agent data into `df` (see [`run!`](@ref) for the dispatch rules
 of `properties`). `step` is given because the step number information is not known.
 """
 collect_agent_data!(df, model, properties::Nothing, step::Int=0) = df
+
+#multiple type verison
+function init_agent_dataframe(model::ABM, properties::Dict)
+    dfs = Dict()
+    for prop in properties
+        dfs[prop.first] = init_agent_dataframe(model, prop.second; type=prop.first)
+    end
+    return dfs
+end
 
 function init_agent_dataframe(model::ABM, properties::AbstractArray)
     nagents(model) < 1 && throw(ArgumentError("Model must have at least one agent to "*
@@ -162,6 +152,8 @@ function init_agent_dataframe(model::ABM, properties::AbstractArray)
     DataFrame(types, headers)
 end
 
+
+
 function collect_agent_data!(df, model, properties::Vector, step::Int=0)
     alla = sort!(collect(values(model.agents)), by=a->a.id)
     dd = DataFrame()
@@ -174,14 +166,26 @@ function collect_agent_data!(df, model, properties::Vector, step::Int=0)
     return df
 end
 
+#multiple type verion
+function collect_agent_data!(dfs,model,properties::Dict, step::Int=0)
+    for prop in properties
+        type_model = ABM(prop.first)
+        add_agents!(allagents_of_type(model,prop.first), type_model)
+        collect_agent_data!(dfs[prop.first], model, prop.second, step; type=prop.first)
+    end
+end
+
 # Aggregating version
-function init_agent_dataframe(model::ABM, properties::Vector{<:Tuple})
+function init_agent_dataframe(model::ABM{A}, properties::Vector{<:Tuple}; type::DataType=A) where {A}
     nagents(model) < 1 && throw(ArgumentError("Model must have at least one agent to "*
     "initialize data collection"))
     headers = Vector{Symbol}(undef, 1+length(properties))
     types = Vector{Vector}(undef, 1+length(properties))
-    alla = allagents(model)
-
+    if type === A
+        alla = allagents(model)
+    else
+        alla = allagents_of_type(model, type)
+    end
     headers[1] = :step
     types[1] = Int[]
 
@@ -210,8 +214,14 @@ function aggname(k, agg)
     end
 end
 
-function collect_agent_data!(df, model, properties::Vector{<:Tuple}, step::Int=0)
-    alla = allagents(model)
+
+
+function collect_agent_data!(df, model::ABM{A}, properties::Vector{<:Tuple}, step::Int=0; type=A) where {A}
+    if type === A
+        alla = allagents(model)
+    else
+        alla = allagents_of_type(model, type)
+    end
     push!(df[!, 1], step)
     for (i, (k, agg)) in enumerate(properties)
         _add_col_data!(df[!, i+1], agg, k, alla)

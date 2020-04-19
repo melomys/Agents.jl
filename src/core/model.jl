@@ -243,6 +243,11 @@ Return an iterator over all agents of the model.
 """
 allagents(model) = values(model.agents)
 
+
+
+function allagents_of_type(model::ABM{A}, ::Type{B}) where{A, B <: A}
+    return filter(x -> typeof(x) <: B,collect(allagents(model)))
+end
 ####################################
 # Schedulers
 ####################################
