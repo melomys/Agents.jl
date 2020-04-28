@@ -1,6 +1,6 @@
 export nagents, AbstractAgent, ABM, AgentBasedModel,
 random_activation, by_id, fastest,by_type, partial_activation, random_agent,
-property_activation, allagents, unniontypesu
+property_activation, allagents, uniontypes
 
 abstract type AbstractSpace end
 
@@ -243,9 +243,11 @@ Return an iterator over all agents of the model.
 """
 allagents(model) = values(model.agents)
 
+function random_agent_of_type(model::ABM{A}, ::Type{B}) where {A, B <: A}
+    rand(allagents_of_type(model,B))
+end
 
-
-function allagents_of_type(model::ABM{A}, ::Type{B}) where{A, B <: A}
+function allagents_of_type(model::ABM{A}, ::Type{B}) where {A, B <: A}
     return filter(x -> typeof(x) <: B,collect(allagents(model)))
 end
 ####################################

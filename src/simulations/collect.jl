@@ -125,15 +125,14 @@ collect_agent_data!(df, model, properties::Nothing, step::Int=0) = df
 function init_agent_dataframe(model::ABM, properties::Dict)
     dfs = Dict()
     for prop in properties
-        dfs[prop.first] = init_agent_dataframe(model, prop.second; type=prop.first)
+        dfs[prop.first] = init_agent_dataframe(model, prop.second;type=prop.first)
     end
     return dfs
 end
 
-function init_agent_dataframe(model::ABM, properties::AbstractArray)
+function init_agent_dataframe(model::ABM{A}, properties::Vector; type::DataType=A) where {A}
     nagents(model) < 1 && throw(ArgumentError("Model must have at least one agent to "*
     "initialize data collection"))
-
     headers = Vector{Symbol}(undef, 2+length(properties))
     headers[1] = :step
     headers[2] = :id
@@ -142,7 +141,11 @@ function init_agent_dataframe(model::ABM, properties::AbstractArray)
     types = Vector{Vector}(undef, 2+length(properties))
     types[1] = Int[]
     types[2] = Int[]
-    a = random_agent(model)
+    if type === A
+        a = random_agent(model)
+    else
+        a = random_agent_of_type(model, type)
+    end
     for (i, k) in enumerate(properties)
         current_type = typeof(get_data(a, k))
         isconcretetype(current_type) || warn("Type is not concrete when using $(k)"*
@@ -154,8 +157,13 @@ end
 
 
 
-function collect_agent_data!(df, model, properties::Vector, step::Int=0)
-    alla = sort!(collect(values(model.agents)), by=a->a.id)
+function collect_agent_data!(df, model::ABM{A}, properties::Vector, step::Int=0; type::DataType=A) where{A}
+    if type === A
+        alla = sort!(collect(values(model.agents)), by=a->a.id)
+    else
+        alla = sort!(allagents_of_type(model, type), by=a->a.id)
+    end
+
     dd = DataFrame()
     dd[!, :step] = fill(step, length(alla))
     dd[!, :id] = map(a->a.id, alla)
