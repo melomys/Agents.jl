@@ -312,7 +312,6 @@ end
 function by_type(arg_types...)
     global ordered_types
     ordered_types = collect(arg_types)
-    println(ordered_types)
     function _by_type(model::ABM{A}) where {A}
         @assert Set(ordered_types) == Set(uniontypes(A))
         ids = collect(keys(model.agents))
