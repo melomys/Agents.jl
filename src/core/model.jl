@@ -136,6 +136,8 @@ function Base.show(io::IO, abm::ABM{A}) where {A}
     end
 end
 
+
+
 """
     getindex(model::ABM, id::Integer)
 
@@ -188,6 +190,15 @@ function Base.setproperty!(m::ABM{A, S, F, P}, s::Symbol, x) where {A, S, F, P}
         properties[s] = x
     else
         throw(ErrorException("Cannot set $(s) in this manner. Please use the `AgentBasedModel` constructor."))
+    end
+end
+
+
+function Base.hasproperty(m::ABM, s::Symbol)
+    if haskey(m.properties, s)
+        return true
+    else
+        return in(s, propertynames(m))
     end
 end
 
